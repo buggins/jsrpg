@@ -1,0 +1,161 @@
+<html>
+	<head>
+		<title>My first Three.js app</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+			}
+
+			a {
+				color: #ff0080;
+				text-decoration: none;
+			}
+
+			a:hover {
+				color: #0080ff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script src="js/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/FirstPersonControls.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script>
+		
+			if ( ! Detector.webgl ) {
+				Detector.addGetWebGLMessage();
+				document.getElementById( 'container' ).innerHTML = "";
+			}
+			
+			var camera, scene, fog, renderer, controls;
+			var cube, light1, light2, light3;
+			var clock = new THREE.Clock();
+
+			init();
+			animate();
+
+			function init() {
+				var container = document.getElementById( 'container' );
+			
+				// Our Javascript will go here.
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+				controls = new THREE.FirstPersonControls( camera );
+				controls.movementSpeed = 0.1;
+				controls.lookSpeed = 0.1;
+				
+				fog = new THREE.Fog(0x202020, 2, 7);
+				scene.fog = fog;
+				
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0x101010 ); //0xbfd1e5 );
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				
+				// load a texture, set wrap mode to repeat
+				var texture = THREE.ImageUtils.loadTexture( "textures/crate.gif" );
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set( 3, 3 );
+				
+				var geometry = new THREE.BoxGeometry(1,1,1, 2, 2, 2);
+				//var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+				//var material1 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x555555, specular: 0xffffff, shininess: 50, shading: THREE.SmoothShading }  )
+				var material1 = new THREE.MeshLambertMaterial( { ambient: 0x555555, color: 0x555555, shading: THREE.SmoothShading }  )
+				material1.map = texture;
+				
+				cube = new THREE.Mesh(geometry, material1);
+				//material1.wireframe = true;
+				scene.add(cube);
+
+				var alight = new THREE.AmbientLight( 0x404040 ); // soft white light
+				scene.add( alight );	
+				
+				light1 = new THREE.PointLight( 0xffffff, 1, 10 );
+				light1.position.set( 5, 0, 0);
+				scene.add( light1 );
+				light2 = new THREE.PointLight( 0xFF5050, 2, 20 );
+				light2.position.set( 4, 3, -2);
+				scene.add( light2 );			
+				light3 = new THREE.PointLight( 0x50FF50, 2, 20 );
+				light3.position.set( 3, -3, 0);
+				scene.add( light3 );			
+
+				// show helpers
+				var sphereSize = 0.1;
+				var pointLightHelper1 = new THREE.PointLightHelper( light1, sphereSize );
+				scene.add( pointLightHelper1 );			
+				var pointLightHelper2 = new THREE.PointLightHelper( light2, sphereSize );
+				scene.add( pointLightHelper2 );			
+				var pointLightHelper3 = new THREE.PointLightHelper( light3, sphereSize );
+				scene.add( pointLightHelper3 );			
+				
+				var axisHelper = new THREE.AxisHelper( 2 );
+				scene.add( axisHelper );			
+				
+				camera.position.z = 3;
+
+				
+				container.appendChild( renderer.domElement );
+				
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
+				
+				window.addEventListener( 'resize', onWindowResize, false );
+			}
+			
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				//controls.update( clock.getDelta() );
+				render();
+				stats.update();
+
+			}
+			
+			function render() {
+				cube.rotation.x += 0.1;
+				cube.rotation.y += 0.03;
+				//camera.position.z += 0.005;
+				//camera.rotation.z += 0.001;
+				light1.position.x += -0.1;
+				light1.position.y += -0.02;
+				light2.position.x += 0.01;
+				light2.position.y += 0.02;
+
+				renderer.render(scene, camera);
+			}
+
+	</script></body>
+</html>
